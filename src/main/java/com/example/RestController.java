@@ -16,47 +16,31 @@
 package com.example;
 
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
-import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 @SpringBootApplication
-@RestController
-@EnableOAuth2Client
-@Order(200)
-public class ResourceServer extends WebSecurityConfigurerAdapter {
+@org.springframework.web.bind.annotation.RestController
+public class RestController {
 
     @RequestMapping({"/user", "/me"})
     public Map<String, String> user(Principal principal, HttpServletRequest request) {
         Map<String, String> map = new LinkedHashMap<>();
-        map.put("name", principal.getName());
+        map.put("UnserInfo", principal.toString());
         map.put("JSessionID = ", request.getSession().getId());
         return map;
     }
 
-    @Configuration
-    @EnableResourceServer
-    protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
-        @Override
-        public void configure(HttpSecurity http) throws Exception {
-            http.antMatcher("/me").authorizeRequests().anyRequest().authenticated();
-        }
+    @RequestMapping({"/insecure/user"})
+    public Map<String, String> insecureApi(Principal principal, HttpServletRequest request) {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("UnserInfo", "This is the unauthenticated endpoint");
+        map.put("JSessionID = ", request.getSession().getId());
+        return map;
     }
-
-    public static void main(String[] args) {
-        SpringApplication.run(ResourceServer.class, args);
-    }
-
 }
